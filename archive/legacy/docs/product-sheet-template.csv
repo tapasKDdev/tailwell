@@ -1,0 +1,9 @@
+category,name,why,price,url,status,last_checked
+joint-supplement,"VetriScience GlycoFlex 3 Senior","Glucosamine + MSM chewables with a third-party assay; sensible dose per chew for older dogs.","42.99",https://example.com/product/glycoflex3,approved,2026-09-01
+fresh-food,"JustFoodForDogs Calorie Base","Vet-formulated balanced complete with published recipe-evidence behind it.","",https://example.com/product/jffd-calorie-base,approved,2026-08-15
+cbd-wellness,"ElleVet CBD + CBDA","Peer-reviewed published data for comfort; include a vet-caution note for pets on medication.","",https://example.com/product/ellevet,draft,2026-09-10
+insurance,"Trupanion","Chronic and hereditary conditions covered with a lifetime per-condition limit; direct vet pay.","",https://example.com/product/trupanion,approved,2026-07-30
+gear-tracker,"Fi Series 2","Long battery life, escape alerts, and a no-monthly-fee tier for older pets.","",https://example.com/product/fi2,approved,2026-06-20
+gear-feeder,"SureFeed Microchip Pet Feeder","Portion control via microchip reading; good for multi-pet households with different diets.","",https://example.com/product/surefeed,approved,2026-05-05
+dental,"OraVet Plaque Prevention Gel","VOHC-accepted plaque control you smear on teeth without brushing stress.","",https://example.com/product/oravet,approved,2026-04-18
+odor-control,"Pooph Instant Odor Eliminator","Enzymatic breakdown rather than fragrance masking; safe around senior pets.","",https://example.com/product/pooph,draft,2026-08-01

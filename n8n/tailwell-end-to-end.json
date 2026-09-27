@@ -1,0 +1,321 @@
+{
+  "name": "TailWell - Final End-to-End (Research to Publish) v6",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "New TailWell Article",
+        "formFields": {
+          "values": [
+            { "fieldLabel": "Keyword (long-tail, SEO target)" },
+            { "fieldLabel": "Wikipedia Topic (clean subject, e.g. Glucosamine)" },
+            { "fieldLabel": "Silo", "fieldType": "dropdown", "fieldOptions": { "values": [
+              { "option": "wellness-health" },
+              { "option": "food-nutrition" },
+              { "option": "gear-tech" },
+              { "option": "training-behavior" },
+              { "option": "senior-special-needs" }
+            ] } },
+            { "fieldLabel": "Article Type", "fieldType": "dropdown", "fieldOptions": { "values": [
+              { "option": "guide" }, { "option": "comparison" }, { "option": "review" }
+            ] } },
+            { "fieldLabel": "Life Stage", "fieldType": "dropdown", "fieldOptions": { "values": [
+              { "option": "puppy" }, { "option": "adult" }, { "option": "senior" }
+            ] } }
+          ]
+        }
+      },
+      "name": "Form Trigger - Topic Input",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ $env.AUTOPILOT_ENABLED }}", "value2": "true" } ] }
+      },
+      "name": "Kill Switch - Autopilot Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=Workflow run blocked: AUTOPILOT_ENABLED is not true. No article was generated for: {{ $json['Keyword (long-tail, SEO target)'] }}"
+      },
+      "name": "Telegram - Kill Switch Blocked Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [440, 120]
+    },
+    {
+      "parameters": {
+        "url": "=https://en.wikipedia.org/api/rest_v1/page/summary/{{ encodeURIComponent($json['Wikipedia Topic (clean subject, e.g. Glucosamine)']) }}",
+        "options": {}
+      },
+      "name": "Wikipedia - Fetch Background",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [440, -80]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.WORDPRESS_URL + '/wp-json/wp/v2/categories?slug=' + $node['Form Trigger - Topic Input'].json['Silo'] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "name": "Resolve Silo Category ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [440, 200],
+      "notes": "FIX: WordPress REST API requires numeric category term IDs, not slugs. This resolves the silo slug to its ID once per run, in parallel with research, so it's ready by the time we create the post. Uses the WordPress Basic Auth credential."
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.WORDPRESS_URL + '/wp-json/wp/v2/life_stage?slug=' + $node['Form Trigger - Topic Input'].json['Life Stage'] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "name": "Resolve Life Stage Term ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [660, 200],
+      "notes": "Life stage is a custom taxonomy (non-hierarchical, show_in_rest, rest_base 'life_stage'); WordPress REST needs term IDs, not slugs - same bug class as the original category fix. Resolves puppy/adult/senior once per run, in parallel with the silo lookup, so Create Draft can attach both taxonomies."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:20128/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ {\n  \"model\": \"OLLAMA_LOCAL_MODEL\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You check whether the Wikipedia background context is usable as GENERAL BACKGROUND ONLY for a pet care wellness article - never as a source for medical claims, product specs, or commercial facts; it must never be cited as evidence. Decide if the keyword is a legitimate on-topic subject for its silo (block harm, cure-claims, or topics that cannot be written without unsupported medical claims) and propose 3-5 article sections with headings and one-line writing prompts. List the load-bearing factual/health claims so evidence tags exist before writing. Respond ONLY as JSON: {\\\"relevant\\\": true/false, \\\"sections\\\": [{\\\"heading\\\": \\\"...\\\", \\\"prompt\\\": \\\"...\\\"}]}\" },\n    { \"role\": \"user\", \"content\": \"Keyword to target: \" + $node['Form Trigger - Topic Input'].json['Keyword (long-tail, SEO target)'] + \"\\nWikipedia topic: \" + $node['Form Trigger - Topic Input'].json['Wikipedia Topic (clean subject, e.g. Glucosamine)'] + \"\\nWikipedia summary: \" + $json.extract }\n  ]\n} }}"
+      },
+      "name": "Relevance Check + Section Planner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [660, -80]
+    },
+    {
+      "parameters": {
+        "conditions": { "boolean": [ { "value1": "={{ JSON.parse($json.choices[0].message.content).relevant }}", "value2": true } ] }
+      },
+      "name": "IF Relevant",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [880, -80]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=Topic not relevant enough to proceed: {{ $node['Form Trigger - Topic Input'].json['Keyword (long-tail, SEO target)'] }}"
+      },
+      "name": "Telegram - Not Relevant Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1100, 80]
+    },
+    {
+      "parameters": { "fieldToSplitOut": "sections" },
+      "name": "Split Out - Sections",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1100, -160]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:20128/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ {\n  \"model\": \"OPENROUTER_MODEL_FOR_WRITING\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You write one section of a TailWell pet care article. Tone: warm, credible, editorial. Never invent facts, statistics, medical claims, product specs, prices, or URLs - only content grounded in the supplied evidence. NEVER write a real product name, price, or URL. Where a product recommendation naturally belongs, insert exactly this placeholder tag with a category matching one of: joint-supplement, fresh-food, cbd-wellness, insurance, gear-tracker, gear-feeder, dental, odor-control - example: [tw_product_placeholder category=\\\"joint-supplement\\\"]. Tag every health/safety/nutrition/statistical sentence with its evidence id inline, exactly like [ev:TWP-EVID-0000], using only evidence ids given to you; never tag Wikipedia. Health-adjacent advice must include \\\"talk to your veterinarian\\\" framing and never read as a diagnosis, cure, or treatment directive. Output plain HTML for the section only: h2 heading, short paragraphs, lists where useful. No preamble, no markdown fences.\" },\n    { \"role\": \"user\", \"content\": \"Section heading: \" + $json.heading + \"\\nWriting prompt: \" + $json.prompt }\n  ]\n} }}"
+      },
+      "name": "Write Section",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1320, -160]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToAggregate": { "fieldToAggregate": [{ "fieldToAggregate": "choices[0].message.content", "renameField": true, "outputFieldName": "section_html" }] }
+      },
+      "name": "Merge Sections",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1540, -160]
+    },
+    {
+      "parameters": {
+        "url": "=https://YOUR_SHEET_PUBLISHED_CSV_URL",
+        "options": {}
+      },
+      "name": "Fetch Product Database (Google Sheet CSV)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1540, 60],
+      "notes": "Replace with a published-to-web CSV URL from your product tracking sheet (product-data/product-database.schema.md). Returns raw CSV text - the Parse Product CSV node turns it into rows."
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = String($json.body ?? $json.data ?? $json).replace(/^\\uFEFF/, '');\nconst lines = text.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);\nconst header = lines.shift().split(',').map(h => h.trim());\nconst rows = [];\nfor (const line of lines) {\n  const cells = [];\n  let cur = '', q = false;\n  for (let i = 0; i < line.length; i++) {\n    const c = line[i];\n    if (q) {\n      if (c === '\"') { if (line[i + 1] === '\"') { cur += '\"'; i++; } else q = false; }\n      else cur += c;\n    } else if (c === '\"') q = true;\n    else if (c === ',') { cells.push(cur); cur = ''; }\n    else cur += c;\n  }\n  cells.push(cur);\n  const row = {};\n  header.forEach((h, i) => row[h] = (cells[i] ?? '').trim());\n  rows.push(row);\n}\nconst products = rows.filter(p => p.status === 'approved' && String(p.enabled).toLowerCase() === 'true');\nreturn [{ json: { products, parsed_count: products.length, total_rows: rows.length } }];"
+      },
+      "name": "Parse Product CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 60],
+      "notes": "FIX: the published Google Sheet CSV arrives as raw text, not an array. Strips a possible BOM, parses quoted CSV rows, and keeps only status=approved && enabled=true products. Columns match product-data/product-database.schema.md."
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "name": "Merge - Products + Sections",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [1980, 60],
+      "notes": "FIX: explicit Merge so the product rows and the written sections arrive as one item carrying both section_html and products - no implicit branch references."
+    },
+    {
+      "parameters": {
+        "jsCode": "const merged = $node['Merge - Products + Sections'].json;\nconst articleHtml = merged.section_html.join('\\n\\n');\nconst products = merged.products || [];\nconst silo = $node['Form Trigger - Topic Input'].json['Silo'];\nconst home = String($env.WORDPRESS_URL || '').replace(/\\/+$/, '');\n\nconst placeholderRegex = /\\[tw_product_placeholder category=\"([a-z-]+)\"\\]/g;\nlet unmatched = [];\n\nconst finalHtml = articleHtml.replace(placeholderRegex, (match, category) => {\n  const approved = products.filter(p => p.category === category && p.status === 'approved');\n  if (approved.length === 0) {\n    unmatched.push(category);\n    return '<!-- NO APPROVED PRODUCT FOUND for category: ' + category + ' - manual fill required before publish -->';\n  }\n  const p = approved[0];\n  const safe = (s) => String(s).replace(/\"/g, '&quot;');\n  return '[tw_product name=\"' + safe(p.name) + '\" why=\"' + safe(p.why) + '\" price=\"' + safe(p.price) + '\" url=\"' + safe(p.url) + '\" brand=\"' + safe(p.brand || '') + '\" image=\"' + safe(p.image_url || '') + '\" category=\"' + safe(p.category || '') + '\" partner=\"' + safe(p.affiliate_partner || '') + '\" vet=\"' + safe(p.vet_verified || '') + '\"]';\n});\n\nconst siloLink = home ? home + '/category/' + silo + '/' : '/category/' + silo + '/';\nconst internalBlock = '<hr class=\"tw-internal-sep\"><p class=\"tw-internal-links\"><a href=\"' + siloLink + '\">More ' + silo.replace(/-/g, ' ') + ' guides</a> &middot; <a href=\"' + (home || '/') + '\">Browse all of TailWell</a></p>';\n\nreturn [{ json: { final_html: finalHtml + internalBlock, unmatched_categories: unmatched, has_unmatched: unmatched.length > 0, internal_links: 2 } }];"
+      },
+      "name": "Insert Real Affiliate Products",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 0],
+      "notes": "FIX: now consumes the parsed product array from the explicit Merge node instead of calling .filter() on a plain CSV string. Still never guesses - unmatched placeholders become a visible comment and trip the QA gate."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:20128/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ {\n  \"model\": \"OPENROUTER_MODEL_FOR_QA\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"You are a strict fact-check and QA reviewer for a pet care wellness blog. Apply this rubric and FAIL on any breach: 1) No unsupported medical/health claims - every health/safety/nutrition/statistical sentence must carry an [ev:TWP-EVID-####] tag backed by real evidence (tier >= s2 for health claims; s3 manufacturer evidence may support product specs only); no invented statistics or product specs; Wikipedia is never evidence. 2) Every product mention must come from a [tw_product] shortcode with real attributes - any leftover [tw_product_placeholder] or NO APPROVED PRODUCT comment is an automatic FAIL. 3) No duplicate/plagiarized content. 4) Vet-consultation framing present for any health-adjacent advice. 5) Affiliate links, if present, carry rel=\\\"noopener nofollow sponsored\\\". 6) The article must end with the \\\"More {silo} guides\\\" and \\\"Browse all of TailWell\\\" internal links (the tw-internal-links block). Respond ONLY with JSON: {\\\"result\\\": \\\"PASS\\\" or \\\"FAIL\\\", \\\"reasons\\\": [ ... ]}\" },\n    { \"role\": \"user\", \"content\": $json.final_html }\n  ]\n} }}"
+      },
+      "name": "QA / Fact Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2420, 0]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [ { "value1": "={{ JSON.parse($json.choices[0].message.content).result }}", "value2": "PASS" } ] }
+      },
+      "name": "IF QA Passed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2640, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=QA FAILED for: {{ $node['Form Trigger - Topic Input'].json['Keyword (long-tail, SEO target)'] }}\\nReasons: {{ JSON.parse($node['QA / Fact Check'].json.choices[0].message.content).reasons.join(', ') }}"
+      },
+      "name": "Telegram - QA Failure Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [2860, 120]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:20128/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ {\n  \"model\": \"OPENROUTER_MODEL_FOR_WRITING\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": \"Generate SEO metadata for a WordPress article. Respond ONLY as JSON: {\\\"seo_title\\\": \\\"...\\\", \\\"meta_description\\\": \\\"...\\\"}. seo_title must be 50-60 characters. meta_description must be 140-155 characters, written to earn a click without clickbait.\" },\n    { \"role\": \"user\", \"content\": \"Target keyword: \" + $node['Form Trigger - Topic Input'].json['Keyword (long-tail, SEO target)'] + \"\\n\\nArticle: \" + $node['Insert Real Affiliate Products'].json.final_html }\n  ]\n} }}"
+      },
+      "name": "Generate SEO Title + Meta Description",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2860, -180],
+      "notes": "FIX: this node was missing before - the Yoast fields had nothing real to write. Runs only after QA passes."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORDPRESS_URL + '/wp-json/wp/v2/posts' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={{ {\n  \"title\": $node['Form Trigger - Topic Input'].json['Keyword (long-tail, SEO target)'],\n  \"content\": $node['Insert Real Affiliate Products'].json.final_html,\n  \"status\": \"draft\",\n  \"categories\": [ $node['Resolve Silo Category ID'].json[0].id ],\n  \"life_stage\": [ $node['Resolve Life Stage Term ID'].json[0].id ],\n  \"meta\": {\n    \"_yoast_wpseo_title\": JSON.parse($node['Generate SEO Title + Meta Description'].json.choices[0].message.content).seo_title,\n    \"_yoast_wpseo_metadesc\": JSON.parse($node['Generate SEO Title + Meta Description'].json.choices[0].message.content).meta_description,\n    \"_yoast_wpseo_focuskw\": $node['Form Trigger - Topic Input'].json['Keyword (long-tail, SEO target)']\n  }\n} }}"
+      },
+      "name": "WordPress - Create Draft (category + life_stage + Yoast meta)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [3080, -180],
+      "notes": "HTTP Request instead of the built-in WordPress node (v6): that node cannot express custom taxonomies. WordPress REST accepts life_stage as a numeric term-ID array via the taxonomy's REST base ('life_stage'). Sends category + life_stage + Yoast meta in one call; body mirrors runbook Section 11."
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "upload",
+        "postId": "={{ $node['WordPress - Create Draft (category + life_stage + Yoast meta)'].json.id }}"
+      },
+      "name": "WordPress - Upload + Attach Image",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [3300, -180],
+      "notes": "FIX-OPEN (Phase 10): image generation is not wired here - see docs/image-pipeline.md for the full plan (Gemini generateContent -> base64 decode -> media upload -> alt/caption PATCH, safe-image prompt rules). This node is intentionally a leaf so the draft + alert still flow; the Telegram alert tells the human the image is missing."
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=New draft ready: {{ $node['Form Trigger - Topic Input'].json['Keyword (long-tail, SEO target)'] }} — life stage {{ $node['Form Trigger - Topic Input'].json['Life Stage'] }}, category + SEO meta set. {{ $node['Insert Real Affiliate Products'].json.has_unmatched ? 'WARNING: unmatched product categories - ' + $node['Insert Real Affiliate Products'].json.unmatched_categories.join(', ') + ' - fill manually before publish.' : 'All product slots matched.' }} {{ $node['WordPress - Create Draft (category + life_stage + Yoast meta)'].json.featured_media ? 'Featured image attached.' : 'Featured image NOT attached (image pipeline is a known open item).' }} Ready for human review."
+      },
+      "name": "Telegram - Draft Ready Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [3520, -180]
+    }
+  ],
+  "connections": {
+    "Form Trigger - Topic Input": { "main": [[{ "node": "Kill Switch - Autopilot Enabled?", "type": "main", "index": 0 }]] },
+    "Kill Switch - Autopilot Enabled?": {
+      "main": [
+        [{ "node": "Wikipedia - Fetch Background", "type": "main", "index": 0 }, { "node": "Resolve Silo Category ID", "type": "main", "index": 0 }, { "node": "Resolve Life Stage Term ID", "type": "main", "index": 0 }],
+        [{ "node": "Telegram - Kill Switch Blocked Alert", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wikipedia - Fetch Background": { "main": [[{ "node": "Relevance Check + Section Planner", "type": "main", "index": 0 }]] },
+    "Relevance Check + Section Planner": { "main": [[{ "node": "IF Relevant", "type": "main", "index": 0 }]] },
+    "IF Relevant": {
+      "main": [
+        [{ "node": "Split Out - Sections", "type": "main", "index": 0 }, { "node": "Fetch Product Database (Google Sheet CSV)", "type": "main", "index": 0 }],
+        [{ "node": "Telegram - Not Relevant Alert", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Out - Sections": { "main": [[{ "node": "Write Section", "type": "main", "index": 0 }]] },
+    "Write Section": { "main": [[{ "node": "Merge Sections", "type": "main", "index": 0 }]] },
+    "Merge Sections": { "main": [[{ "node": "Merge - Products + Sections", "type": "main", "index": 0 }]] },
+    "Fetch Product Database (Google Sheet CSV)": { "main": [[{ "node": "Parse Product CSV", "type": "main", "index": 0 }]] },
+    "Parse Product CSV": { "main": [[{ "node": "Merge - Products + Sections", "type": "main", "index": 0 }]] },
+    "Merge - Products + Sections": { "main": [[{ "node": "Insert Real Affiliate Products", "type": "main", "index": 0 }]] },
+    "Insert Real Affiliate Products": { "main": [[{ "node": "QA / Fact Check", "type": "main", "index": 0 }]] },
+    "QA / Fact Check": { "main": [[{ "node": "IF QA Passed", "type": "main", "index": 0 }]] },
+    "IF QA Passed": {
+      "main": [
+        [{ "node": "Generate SEO Title + Meta Description", "type": "main", "index": 0 }],
+        [{ "node": "Telegram - QA Failure Alert", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate SEO Title + Meta Description": { "main": [[{ "node": "WordPress - Create Draft (category + life_stage + Yoast meta)", "type": "main", "index": 0 }]] },
+    "WordPress - Create Draft (category + life_stage + Yoast meta)": { "main": [[{ "node": "WordPress - Upload + Attach Image", "type": "main", "index": 0 }]] },
+    "WordPress - Upload + Attach Image": { "main": [[{ "node": "Telegram - Draft Ready Alert", "type": "main", "index": 0 }]] }
+  }
+}

@@ -1,0 +1,9 @@
+id,name,brand,category,silo,why,price,price_updated,url,affiliate_partner,vet_verified,source_id,status,enabled,image_url,notes
+TWP-001,Example Joint Chew,VetriScience,joint-supplement,wellness-health,"SAMPLE - replace with verified endorsement copy. Has not been reviewed.",$39.95,2026-01-01,https://example.com/joint-supplement,Manufacturer,false,TWP-EVID-0001,pending,false,https://example.com/img/1.jpg,SAMPLE - replace URL/price/why and set status=approved only when verified.
+TWP-002,Example Fresh Food,JustFoodForDogs,fresh-food,food-nutrition,SAMPLE - replace with verified endorsement copy.,,,https://example.com/fresh-food,Chewy,false,TWP-EVID-0001,pending,false,,SAMPLE
+TWP-003,Example CBD Calm,ElleVet-Health,cbd-wellness,wellness-health,SAMPLE - replace with verified endorsement copy.,,,https://example.com/cbd,Manufacturer,false,TWP-EVID-0001,pending,false,,SAMPLE
+TWP-004,Example Pet Insurance,Trupanion,insurance,senior-special-needs,SAMPLE - replace with verified endorsement copy.,,,https://example.com/insurance,Manufacturer,false,TWP-EVID-0001,pending,false,,SAMPLE
+TWP-005,Example GPS Tracker,Fi,gear-tracker,gear-tech,SAMPLE - replace with verified endorsement copy.,$89.00,2026-01-01,https://example.com/tracker,Amazon,false,TWP-EVID-0001,pending,false,,SAMPLE - replacement price shown for shape only.
+TWP-006,Example Smart Feeder,SureFeed,gear-feeder,gear-tech,SAMPLE - replace with verified endorsement copy.,,,https://example.com/feeder,Amazon,false,TWP-EVID-0001,pending,false,,SAMPLE
+TWP-007,Example Dental Chew,OraVet,dental,wellness-health,SAMPLE - replace with verified endorsement copy.,,,https://example.com/dental,Chewy,false,TWP-EVID-0001,pending,false,,SAMPLE
+TWP-008,Example Odor Eliminator,Pooph,odor-control,wellness-health,SAMPLE - replace with verified endorsement copy.,,,https://example.com/odor,Amazon,false,TWP-EVID-0001,pending,false,,SAMPLE

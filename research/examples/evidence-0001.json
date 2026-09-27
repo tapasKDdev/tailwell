@@ -1,0 +1,18 @@
+{
+  "source_id": "TWP-EVID-0001",
+  "title": "EXAMPLE evidence object - REPLACE before use",
+  "url": "https://example.com/evidence/0001",
+  "publisher": "EXAMPLE PUBLISHER - REPLACE",
+  "type": "peer-reviewed study",
+  "publication_date": "2026-01-01",
+  "retrieved_at": "2026-01-15",
+  "tier": "s1",
+  "notes": "ILLUSTRATIVE PLACEHOLDER. This file exists so the product template source_id links resolve and to show the schema shape. Nothing here is real evidence; replace all fields from a real retrieval before any row references it.",
+  "claims": [
+    {
+      "predicate": "EXAMPLE - replace with the exact claim this source supports.",
+      "supported": true,
+      "quote_hint": "EXAMPLE - short quoted phrase from the source."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+# ============================================================
+# TailWell .gitignore — protects secrets, tooling state and
+# generated output. NEVER ignore: production source (wordpress/,
+# n8n/, automation/, research/, product-data/, docs/, scripts/,
+# pages/, archive/) or .env.example / README / CHANGELOG.
+# ============================================================
+
+# --- Environments & secrets (never commit real values) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+id_rsa*
+*.keystore
+secrets.json
+credentials.json
+.npmrc
+
+# --- n8n local runtime state (machine-specific; workflow JSON stays tracked) ---
+.n8n/
+n8n-*.log
+*.n8n.local.json
+
+# --- Node / JS tooling ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+.cache/
+
+# --- Python tooling (if ever added) ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# --- PHP tooling (if ever added) ---
+vendor/
+composer.phar
+.phpunit.result.cache
+
+# --- Generated / local output ---
+dist/
+tmp/
+temp/
+tmp-*/
+*.log
+logs/
+coverage/
+coverage.xml
+htmlcov/
+test-results/
+qa-output/
+# browser-QA screenshot artifacts (the theme's screenshot.png is required and NOT matched)
+tw-home-*.jpg
+tw-product-*.jpg
+tw-qa-*.png
+*.claude/
+
+# --- OS junk ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Editor / IDE state ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+
+# --- Machine-specific configuration ---
+local.settings.json
+*.local.json

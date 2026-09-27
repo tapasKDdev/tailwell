@@ -1,0 +1,618 @@
+﻿/*
+Theme Name: TailWell (GeneratePress Child)
+Theme URI: https://tailwell.com
+Description: Custom GeneratePress child theme for TailWell — a pet care wellness content and affiliate site.
+Author: TailWell
+Template: generatepress
+Version: 1.0.0
+Text Domain: tailwell
+*/
+
+/* ==========================================================================
+   1. Design tokens
+   ========================================================================== */
+:root {
+  --tw-sage: #5F7A52;
+  --tw-sage-light: #E1EADB;
+  --tw-terracotta: #D97B4F;
+  --tw-terracotta-dark: #4A1B0C;
+  --tw-terracotta-light: #F5E1D3;
+  --tw-cream: #F5EFE4;
+  --tw-white: #FFFFFF;
+  --tw-off-white: #FAF7F0;
+  --tw-charcoal: #2E2A24;
+  --tw-text-secondary: #5F5A50;
+  --tw-border: rgba(46, 42, 36, 0.1);
+  --tw-radius: 8px;
+  --tw-radius-card: 12px;
+  --tw-font-heading: 'Fraunces', Georgia, serif;
+  --tw-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ==========================================================================
+   2. Base
+   ========================================================================== */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--tw-cream);
+  color: var(--tw-charcoal);
+  font-family: var(--tw-font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+}
+
+img, svg, video, iframe { display: block; max-width: 100%; }
+img, video { height: auto; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--tw-font-heading);
+  font-weight: 500;
+  color: var(--tw-charcoal);
+  line-height: 1.3;
+}
+
+h1 { font-size: clamp(28px, 6vw, 34px); }
+h2 { font-size: clamp(22px, 4.4vw, 24px); margin-top: 2rem; }
+h3 { font-size: clamp(17px, 3.4vw, 18px); }
+
+a {
+  color: var(--tw-sage);
+  text-decoration: underline;
+  text-decoration-color: var(--tw-sage-light);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--tw-terracotta);
+}
+
+/* ==========================================================================
+   3. Header / navigation
+   ========================================================================== */
+.site-header {
+  background-color: var(--tw-cream);
+  border-bottom: 1px solid var(--tw-border);
+}
+
+.main-navigation a {
+  color: var(--tw-charcoal);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.main-navigation a:hover {
+  color: var(--tw-sage);
+}
+
+.site-logo, .site-title a {
+  color: var(--tw-charcoal);
+  font-family: var(--tw-font-heading);
+  font-weight: 500;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   4. Buttons / CTAs
+   ========================================================================== */
+.tw-button,
+.wp-block-button__link,
+button.button,
+input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--tw-terracotta);
+  color: var(--tw-terracotta-dark);
+  font-family: var(--tw-font-body);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: var(--tw-radius);
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.tw-button:hover,
+.wp-block-button__link:hover {
+  opacity: 0.9;
+  color: var(--tw-terracotta-dark);
+}
+
+/* ==========================================================================
+   5. Cards — silo cards, article cards, product recommendation boxes
+   ========================================================================== */
+.tw-card {
+  background-color: var(--tw-white);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-card);
+  padding: 1.25rem;
+}
+
+.tw-silo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 2rem 0;
+}
+
+.tw-silo-card {
+  background-color: var(--tw-white);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-card);
+  padding: 1.25rem;
+  text-decoration: none;
+}
+
+.tw-silo-card .tw-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--tw-sage-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.tw-silo-card h3 {
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+
+.tw-silo-card p {
+  font-size: 13px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+}
+
+/* Product recommendation box — used inside article body for affiliate picks */
+.tw-product-box {
+  background-color: var(--tw-off-white);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-card);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.tw-product-box .tw-badge {
+  display: inline-block;
+  background-color: var(--tw-sage-light);
+  color: var(--tw-sage);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--tw-radius);
+  margin-bottom: 8px;
+}
+
+.tw-product-box h4 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+
+.tw-product-box p {
+  font-size: 14px;
+  color: var(--tw-text-secondary);
+  margin: 0 0 12px;
+}
+
+/* ==========================================================================
+   6. Trust / disclosure notes
+   ========================================================================== */
+.tw-disclosure {
+  background-color: var(--tw-sage-light);
+  border-left: 3px solid var(--tw-sage);
+  border-radius: 0 var(--tw-radius) var(--tw-radius) 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--tw-charcoal);
+  margin: 1.5rem 0;
+}
+
+/* ==========================================================================
+   7. Footer
+   ========================================================================== */
+.site-footer {
+  background-color: var(--tw-charcoal);
+  color: var(--tw-off-white);
+  padding: 2rem 0;
+}
+
+.site-footer a {
+  color: var(--tw-off-white);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.site-footer a:hover {
+  color: var(--tw-terracotta);
+}
+
+/* ==========================================================================
+   8. Responsive
+   ========================================================================== */
+@media (max-width: 600px) {
+  .tw-silo-grid { grid-template-columns: 1fr 1fr; }
+  .tw-list-item { flex-direction: column; gap: 0.5rem; }
+  .tw-list-item__arrow { display: none; }
+}
+
+/* ==========================================================================
+   9. Banners (homepage hero, silo banner, inline banner)
+   Built on the existing .tw-card / .tw-button / .tw-icon-badge components.
+   ========================================================================== */
+
+.tw-hero {
+  background-color: var(--tw-sage-light);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-card);
+  padding: clamp(2rem, 5vw, 3.5rem);
+  margin: 1.5rem 0 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.tw-hero__content { flex: 1 1 auto; min-width: 0; }
+
+.tw-hero h1,
+.tw-hero .tw-hero__heading {
+  font-size: clamp(28px, 5vw, 38px);
+  line-height: 1.18;
+  margin: 0 0 0.75rem;
+  color: var(--tw-charcoal);
+}
+
+.tw-hero .tw-hero__sub {
+  font-size: 17px;
+  color: var(--tw-text-secondary);
+  max-width: 46ch;
+  margin: 0 0 1.5rem;
+}
+
+.tw-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Optional side motif (paw + leaf), mirrors the logo mark */
+.tw-hero__art {
+  flex: 0 0 140px;
+  color: var(--tw-sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tw-hero__art .leaf { color: var(--tw-terracotta); }
+
+@media (max-width: 700px) {
+  .tw-hero { flex-direction: column-reverse; align-items: flex-start; }
+  .tw-hero__art { flex-basis: auto; } /* hide/shift artwork on small screens */
+}
+
+/* ------------------ Silo banner (top of each category page) ------------------ */
+.tw-silo-banner {
+  background-color: var(--tw-off-white);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-card);
+  padding: 1.75rem 2rem;
+  margin: 1rem 0 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tw-silo-banner .tw-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: var(--tw-sage-light);
+  color: var(--tw-sage);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tw-silo-banner h1 {
+  font-size: clamp(24px, 5.5vw, 30px);
+  font-weight: 500;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.tw-silo-banner p {
+  font-size: 15px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+  max-width: 70ch;
+}
+
+@media (max-width: 600px) {
+  .tw-silo-banner { padding: 1.25rem 1.25rem; flex-direction: column; gap: 0.75rem; }
+  .tw-silo-banner h1 { font-size: 26px; }
+}
+
+/* ------------------ Inline banner (mid-article internal linking) ------------------ */
+/* Same visual weight as .tw-disclosure — low-key, not ad-like */
+.tw-inline-banner {
+  background-color: var(--tw-off-white);
+  border-left: 3px solid var(--tw-sage);
+  border-radius: 0 var(--tw-radius) var(--tw-radius) 0;
+  padding: 14px 18px;
+  margin: 1.5rem 0;
+  font-size: 15px;
+  color: var(--tw-charcoal);
+}
+.tw-inline-banner strong {
+  color: var(--tw-sage-dark, var(--tw-sage));
+  font-weight: 600;
+}
+.tw-inline-banner a {
+  color: var(--tw-sage);
+  text-decoration: underline;
+  text-decoration-color: var(--tw-sage-light);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   10. Article list (silo pages) + related articles (blog/article pages)
+   ========================================================================== */
+.tw-article-list {
+  border-top: 1px solid var(--tw-border);
+  margin: 0 0 2.5rem;
+}
+
+.tw-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--tw-border);
+  padding: 1.5rem 0;
+  text-decoration: none;
+}
+
+.tw-list-item h3 {
+  font-size: 19px;
+  margin: 0 0 5px;
+  line-height: 1.35;
+}
+
+.tw-list-item p {
+  font-size: 14.5px;
+  color: var(--tw-text-secondary);
+  margin: 0 0 10px;
+  max-width: 70ch;
+}
+
+.tw-list-item .tw-meta {
+  font-size: 12.5px;
+  color: var(--tw-text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tw-list-item__arrow {
+  flex-shrink: 0;
+  color: var(--tw-terracotta);
+  margin-top: 6px;
+}
+
+/* Related articles block */
+.tw-related {
+  margin: 3rem auto 0;
+  max-width: 900px;
+}
+
+.tw-related__title {
+  font-size: 24px;
+  margin: 0 0 1.25rem;
+}
+
+.tw-grid--related {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.tw-article-card {
+  background-color: var(--tw-white);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-card);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.tw-article-card h3 {
+  font-size: 16px;
+  line-height: 1.4;
+  margin: 0 0 8px;
+}
+
+.tw-article-card p {
+  font-size: 13.5px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+}
+
+.tw-article-card .tw-meta {
+  margin-top: auto;
+  padding-top: 10px;
+  font-size: 12px;
+  color: var(--tw-text-secondary);
+}
+
+@media (max-width: 800px) {
+  .tw-grid--related { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .tw-grid--related { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   11. Table of contents
+   ========================================================================== */
+.tw-toc {
+  background-color: var(--tw-off-white);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-card);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+.tw-toc__title {
+  font-family: var(--tw-font-heading);
+  font-weight: 500;
+  font-size: 16px;
+  margin: 0 0 0.5rem;
+}
+.tw-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 1.25rem;
+}
+.tw-toc a {
+  font-size: 14px;
+  color: var(--tw-charcoal);
+  text-decoration: none;
+  border-bottom: 1px dashed transparent;
+}
+.tw-toc a:hover { color: var(--tw-sage); border-bottom-color: var(--tw-sage-light); }
+
+@media (max-width: 600px) {
+  .tw-toc ol { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   12. Accessibility & misc
+   ========================================================================== */
+
+/* Ensure terracotta-on-cream CTA text meets contrast (charcoal/dark-terracotta text) */
+.wp-block-button__link,
+.tw-button {
+  color: var(--tw-terracotta-dark); /* dark terracotta text on terracotta bg */
+}
+
+/* Soft focus states for keyboard users */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid var(--tw-sage);
+  outline-offset: 2px;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+/* Contact form styling (native, no inline styles) */
+.tw-contact {
+  max-width: 640px;
+  margin: 1.5rem 0 2.5rem;
+}
+.tw-contact input[type="text"],
+.tw-contact input[type="email"],
+.tw-contact textarea {
+  width: 100%;
+  font-family: var(--tw-font-body);
+  font-size: 16px;
+  padding: 11px 14px;
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius);
+  background-color: var(--tw-white);
+  color: var(--tw-charcoal);
+  margin-bottom: 1rem;
+}
+.tw-contact textarea { min-height: 150px; }
+
+/* ==========================================================================
+   13. Mobile-first refinements (added 2026-09-21)
+   ========================================================================== */
+
+/* Overflow guards — long words, URLs, media, and grid children can otherwise
+   widen the page past the viewport on small screens. */
+html, body { max-width: 100%; }
+img, svg, video, iframe, table, pre { max-width: 100%; }
+pre { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.tw-silo-grid > *,
+.tw-grid--related > *,
+.tw-hero > *,
+.tw-silo-banner > *,
+.tw-product-box > *,
+.tw-list-item > * { min-width: 0; }
+
+/* 44px minimum touch targets */
+.tw-button,
+.wp-block-button__link,
+button.button,
+input[type="submit"] { min-height: 44px; }
+
+a, .site-footer a, .tw-toc a, .main-navigation a { -webkit-tap-highlight-color: transparent; }
+
+/* Wide tables in copy scroll rather than breaking the layout */
+.entry-content table,
+.tw-article-list table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-collapse: collapse;
+}
+
+@media (max-width: 900px) {
+  /* Larger tap area for the primary nav on touch devices */
+  .main-navigation a,
+  .site-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+@media (max-width: 600px) {
+  .tw-toc { padding: 1rem 1.1rem; }
+  .tw-hero__actions .tw-button { flex: 1 1 100%; justify-content: center; }
+  .tw-related__title { font-size: 21px; }
+  .tw-silo-banner p { font-size: 14.5px; }
+}
+
+@media (max-width: 420px) {
+  .tw-silo-grid { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   Dark mode — follows the OS preference (prefers-color-scheme).
+   -------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --tw-sage: #93B084;
+    --tw-sage-light: #26312A;
+    --tw-terracotta: #E69367;
+    --tw-terracotta-dark: #F2C6A9;
+    --tw-terracotta-light: #7A4A30;
+    --tw-cream: #161A15;
+    --tw-white: #1D231C;
+    --tw-off-white: #212721;
+    --tw-charcoal: #EFE9DC;
+    --tw-text-secondary: #A8A294;
+    --tw-border: rgba(239, 233, 220, 0.14);
+  }
+  .site-footer { background-color: #10140F; }
+  a { text-decoration-color: rgba(147, 176, 132, 0.5); }
+  a:hover { text-decoration-color: rgba(230, 147, 103, 0.55); }
+}
